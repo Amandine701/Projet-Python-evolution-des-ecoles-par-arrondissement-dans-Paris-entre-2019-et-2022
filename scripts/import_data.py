@@ -19,8 +19,9 @@ print(code_geographique.head(20))
 
 print(pop_mun.columns)
 print(effectifs_ecoles.columns)
+pop_mun["popmun_annee"].unique()
 
-# Il faut aussi charger les bases de données du recensement pour les autres années : ici c'est que 2020 
+# Il faut aussi charger les bases de données du recensement pour les autres années : ici c'est que 2021 
 
 #Données resensements 
 
@@ -59,7 +60,7 @@ if response.status_code == 200:
             print(f"Fichier CSV trouvé : {csv_file}")
             
             # Charger le fichier CSV dans un DataFrame pandas
-            mobscol_2020 = pd.read_csv(os.path.join(extract_folder, csv_file), nrows=100, header=0, encoding='windows-1252', low_memory=False)
+            mobscol_2020 = pd.read_csv(os.path.join(extract_folder, csv_file), sep = ";", nrows=100, header=0, encoding='windows-1252', low_memory=False)
             
             # Afficher les premières lignes des données
             print(mobscol_2020.head())
@@ -68,8 +69,9 @@ if response.status_code == 200:
 else:
     print(f"Erreur lors du téléchargement du fichier : {response.status_code}")
 
-['COMMUNE', 'ARM','DCETUF','AGEREV10','CSM','INPSM','NPERR']
-mobscol_2020 = pd.read_csv(, sep = ",", nrows=100, header=0, encoding='windows-1252', low_memory=False)
-print(mobscol_2020(20))
+#['COMMUNE', 'ARM','DCETUF','AGEREV10','CSM','INPSM','NPERR']
+#mobscol_2020 = pd.read_csv(, sep = ";", nrows=100, header=0, encoding='windows-1252', low_memory=False)
+
+print(mobscol_2020.head(20))
 
 
