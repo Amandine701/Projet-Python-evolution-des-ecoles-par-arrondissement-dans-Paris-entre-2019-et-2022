@@ -20,6 +20,8 @@ print(code_geographique.head(20))
 print(pop_mun.columns)
 print(effectifs_ecoles.columns)
 pop_mun["popmun_annee"].unique()
+effectifs_ecoles["Rentrée scolaire"].unique()
+
 
 # Il faut aussi charger les bases de données du recensement pour les autres années : ici c'est que 2021 
 
