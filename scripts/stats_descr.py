@@ -1,7 +1,17 @@
+#==== attention liste des modulesà installer dans son BASH
+#pip install unidecode
+#pip install py7zr geopandas openpyxl tqdm s3fs 
+#pip install PyYAML xlrd
+#pip install git+https://github.com/inseefrlab/cartiflette
+#pip install urllib3==1.26.5 #cartiflette nécessite une version de urllib3 antérieure à la deuxième, il faut donc installer une ancienne version.
+
 import matplotlib.pyplot as plt
 import numpy as np
-from unidecode import unidecode #dans le bash pip install unidecode
+from unidecode import unidecode 
 import matplotlib.ticker as mticker
+import geopandas as gpd
+from cartiflette import carti_download
+
 
 # Base de données effectifs_ecoles ---------
 ## Ne garde que les rentrées scolaires 2019, 2020, 2021 et Paris (via le code postal)
@@ -45,6 +55,8 @@ pivot_df['evolution_2019_2020'] = ((pivot_df[2020] - pivot_df[2019]) / pivot_df[
 pivot_df['evolution_2020_2021'] = ((pivot_df[2021] - pivot_df[2020]) / pivot_df[2020]) * 100
 pivot_df['proportion_2019_2020'] = pivot_df['evolution_2019_2020'] / pivot_df['evolution_total']
 pivot_df['proportion_2020_2021'] = pivot_df['evolution_2020_2021'] / pivot_df['evolution_total']
+pivot_df['evolution_total_niveau'] = (pivot_df[2021] - pivot_df[2019]) 
+pivot_df['INSEE_COG'] = (pivot_df.index.astype(int)+ 100).astype(str)
 pivot_df.index = pivot_df.index.astype(str)
 
 
@@ -116,59 +128,40 @@ plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondisse
 
 
 #=============== Cartographie
-# Dans son bash : pip install cartiflette
 
-import geopandas as gpd
-from cartiflette import carti_download
-
-# 1. Fonds communaux
-contours_villes_arrt = carti_download(
-    values=["75"],
+petite_couronne = carti_download(
     crs=4326,
+    values=["75", "92", "93", "94"],
     borders="COMMUNE_ARRONDISSEMENT",
+    vectorfile_format="geojson",
     filter_by="DEPARTEMENT",
     source="EXPRESS-COG-CARTO-TERRITOIRE",
     year=2022,
 )
 
-# 2. Départements
-departements = contours_villes_arrt.dissolve("INSEE_DEP")
+petite_couronne.crs
+petite_couronne = petite_couronne.to_crs(2154)
+petite_couronne.crs
 
-departements['INSEE_COM'].unique()
 
 
-velib_data = "https://opendata.paris.fr/explore/dataset/velib-emplacement-des-stations/download/?format=geojson&timezone=Europe/Berlin&lang=fr"
-stations = gpd.read_file(velib_data)
-stations.head(20)
+petite_couronne_count = petite_couronne.merge(pivot_df).to_crs(2154)
 
-ax = stations.sample(200).plot(color="red")
-contours_villes_arrt.boundary.plot(ax=ax, edgecolor="k", linewidth=0.5)
-departements.boundary.plot(ax=ax, edgecolor="blue", linewidth=1)
-ax.set_axis_off()
+#Evol en niveau
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/test.png")
+aplat = petite_couronne_count.plot(column="evolution_total_niveau", cmap="Reds_r", legend=True)
+aplat.set_axis_off()
+aplat.set_title("Evolution du nombre d'élèves entre 2019 et 2021, par arrondissement (en milliers)",y=1.0, pad=14)
+aplat
 
-from cartiflette import carti_map
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/testt.png")
 
-carti_map(
-    geo=contours_villes_arrt,
-    df=pivot_df,
-    id_geo='id',
-    id_data='code_postal',
-    column='evolution_total',
-    legend=True,
-    palette='Blues',        # Palette de couleurs
-    title='test'
-)
-import cartiflette
-print(dir(cartiflette))
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/testZ.png")
+#evol en %
 
-import geopandas as gpd
-import matplotlib.pyplot as plt
+aplat = petite_couronne_count.plot(column="evolution_total", cmap="Reds_r", legend=True)
+aplat.set_axis_off()
+aplat.set_title("Evolution du nombre d'élèves entre 2019 et 2021, par arrondissement (en %)",y=1.0, pad=-14)
+aplat
 
-geo_paris = gpd.read_file("paris.geojson")
-
-# Visualiser les données avec une colonne spécifique
-geo_paris.plot(column='population', legend=True, cmap='Blues')
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/test5.png")
