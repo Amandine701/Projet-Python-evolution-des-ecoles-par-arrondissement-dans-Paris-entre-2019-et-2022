@@ -4,8 +4,7 @@ import requests
 import os
 from io import BytesIO
 
-pop_mun = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/8c35e301-192d-4c14-a0b4-dfa02deecbc1", sep = ",", header=0, encoding='windows-1252', low_memory=False)
-print(pop_mun.head(20))
+
 
 effectifs_ecoles = pd.read_csv("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes/exports/csv?lang=fr&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B", sep = ";", header = 0)
 print(effectifs_ecoles.head(20))
@@ -23,7 +22,6 @@ pop_mun["popmun_annee"].unique()
 effectifs_ecoles["Rentrée scolaire"].unique()
 
 
-# Il faut aussi charger les bases de données du recensement pour les autres années : ici c'est que 2021 
 
 #Données resensements 
 
@@ -52,15 +50,14 @@ if response.status_code == 200:
         
         # Lister les fichiers extraits
         extracted_files = os.listdir(extract_folder)
-        pop_2021 = pd.read_csv(os.path.join(extract_folder, "FD_LOGEMTZA_2020.csv"), sep = ";", header=0, encoding='UTF-8', low_memory=False)
+        pop_2021 = pd.read_csv(os.path.join(extract_folder, "FD_LOGEMTZA_2021.csv"), sep = ";", header=0, encoding='UTF-8', low_memory=False)
 
 else:
     print(f"Erreur lors du téléchargement du fichier : {response.status_code}")
 
-#['COMMUNE', 'ARM','DCETUF','AGEREV10','CSM','INPSM','NPERR']
-#mobscol_2020 = pd.read_csv(, sep = ";", nrows=100, header=0, encoding='windows-1252', low_memory=False)
 
 print(pop_2021.head(20))
+
 
 
 #Année 2020 pour les logements en zone A (IDF) https://www.insee.fr/fr/statistiques/7705908?sommaire=7637890
@@ -131,14 +128,6 @@ else:
 print(pop_2019.head(20))
 
 
-
-
-
-
-
-
-
-
 #Fichiers des mobilités scolaires 
 
 #Millésime 2020 https://www.insee.fr/fr/statistiques/7637890
@@ -186,4 +175,4 @@ else:
 
 print(mobscol_2020.head(20))
 
-
+# 

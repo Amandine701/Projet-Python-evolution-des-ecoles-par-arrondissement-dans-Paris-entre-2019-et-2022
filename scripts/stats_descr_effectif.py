@@ -28,23 +28,6 @@ effectifs_ecoles_paris = effectifs_ecoles[
 
 effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
 
-#colonnes = effectifs_ecoles_paris.columns
-# Fonction pour renommer les colonnes 
-#def nettoyer_nom_colonne(nom):
-    # Supprimer les accents
-#    nom_sans_accents = unidecode(nom)
-    # Supprimer "d'" et les apostrophes
-#    nom_sans_apostrophe = nom_sans_accents.replace("d'", "").replace("'", "")
-    # Remplacer les espaces par des tirets bas
-#    nom_sans_espaces = nom_sans_apostrophe.replace(" ", "_")
-    # Transformer en minuscule pour uniformité (facultatif)
-#    return nom_sans_espaces.lower()
-
-# Renommer toutes les colonnes
-#effectifs_ecoles_paris.columns = [nettoyer_nom_colonne(col) for col in colonnes]
-
-
-
 # Total nombre d'élèves par arrondissement par année
 nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
 
