@@ -96,9 +96,9 @@ petite_couronne.crs
 petite_couronne = petite_couronne.to_crs(2154)
 petite_couronne.crs
 
+pivot_pop_totale.columns
 
-
-petite_couronne_count = petite_couronne.merge(pivot_pop_totale).to_crs(2154)
+petite_couronne_count = petite_couronne.merge(pivot_pop_totale).to_crs(2154) # Problème qui vient de là, à comparer avec stats_descr_effectifs
 
 #Evol en niveau
 
