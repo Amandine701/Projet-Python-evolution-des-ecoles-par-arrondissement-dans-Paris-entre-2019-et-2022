@@ -45,6 +45,15 @@ pivot_df.index = pivot_df.index.astype(str)
 
 pivot_df_sorted = pivot_df.sort_values(by='evolution_total', ascending=False)
 
+# Proportion d'élèves par arrondissement par année
+
+pivot_df.columns
+pivot_df['effectifs_totaux_2019'] = pivot_df[2019].sum()
+pivot_df['effectifs_totaux_2020'] = pivot_df[2020].sum()
+pivot_df['effectifs_totaux_2021'] = pivot_df[2021].sum()
+pivot_df['proportion_2019'] = pivot_df[2019] / pivot_df['effectifs_totaux_2019'] * 100
+pivot_df['proportion_2020'] = pivot_df[2020] / pivot_df['effectifs_totaux_2020'] * 100
+pivot_df['proportion_2021'] = pivot_df[2021] / pivot_df['effectifs_totaux_2021'] * 100
 
 # Graphique : Nombre total d'élèves pas arrondissement par année
 
@@ -108,6 +117,41 @@ plt.tight_layout()
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/evolution_avec_contrib.png")
 
+## Graphique : proportion d'élèves par arrondissement
+
+proportion = [pivot_df[f"proportion_{annee}"] for annee in annees]
+bar_width = 0.25
+x = np.arange(len(arrondissement))
+
+# Création de la figure et des sous-graphiques
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Histogrammes pour chaque année
+for i, (annee, proportion) in enumerate(zip(annees, proportion)):
+    ax.bar(x + i * bar_width, proportion, width=bar_width, label=f"Proportion {annee}")
+
+# Ajout des labels et titres
+ax.set_xticks(x + bar_width)
+ax.set_xticklabels(arrondissement)
+ax.set_xlabel("Arrondissements")
+ax.set_ylabel("Proportion")
+ax.set_title("Proportions d'élèves par arrondissement (2019 - 2021)")
+ax.legend(title="Années")
+plt.tight_layout()
+
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/proportion_effectifs.png")
+
+#fig, axes = plt.subplots(1, len(annees), figsize=(15, 5), sharey=True)
+#for i, annee in enumerate(annees):
+#    proportions = pivot_df[f"proportion_{annee}"]
+#    axes[i].bar(arrondissement, proportion, color=f"C{i}")
+#    axes[i].set_title(f"Proportions en {annee}")
+#    axes[i].set_xlabel("Arrondissements")
+#    if i == 0:  # Ajouter un label pour l'axe Y uniquement sur le premier
+#        axes[i].set_ylabel("Proportion")
+#    axes[i].set_ylim(0, max(pivot_df[[f"proportion_{a}" for a in annees]].max().max() * 1.1, 0.3))  # Garde une échelle cohérente
+#plt.tight_layout()
+#plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/proportion_effectifs2.png")
 
 
 #=============== Cartographie

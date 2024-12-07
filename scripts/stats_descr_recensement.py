@@ -4,19 +4,19 @@
 pop_2021_paris = pop_2021[
     (pop_2021['COMMUNE'] == 75056)]
 pop_2021_paris["ANNEE"] = 2021
-pop_2021_paris["ARM"].unique()
+#pop_2021_paris["ARM"].unique()
 
 pop_2020_paris = pop_2020[
     (pop_2020['COMMUNE'] == 75056)]
 pop_2020_paris["ANNEE"] = 2020
 pop_2020_paris = pop_2020_paris.drop(columns=["Texte"])
-pop_2020_paris["ARM"].unique()
-pop_2020_paris["INPER"].unique()
+#pop_2020_paris["ARM"].unique()
+#pop_2020_paris["INPER"].unique()
 
 pop_2019_paris = pop_2019[
     (pop_2019['COMMUNE'] == 75056)]
 pop_2019_paris["ANNEE"] = 2019
-pop_2019_paris["ARM"].unique()
+#pop_2019_paris["ARM"].unique()
 
 ## Focus sur le nombre total d'habitants, compris comme la somme des habitants d'un logement
 pop_paris = pd.concat([pop_2021_paris, pop_2020_paris, pop_2019_paris], ignore_index=True)
@@ -37,6 +37,15 @@ pivot_pop_totale['INSEE_COG'] = (pivot_pop_totale.index.astype(int)+ 100).astype
 pivot_pop_totale.index = pivot_pop_totale.index.astype(str)
 
 pivot_pop_totale_sorted = pivot_pop_totale.sort_values(by='evolution_total', ascending=False)
+
+# Proportion population par arrondissement 
+
+pivot_pop_totale['population_totale_2019'] = pivot_pop_totale[2019].sum()
+pivot_pop_totale['population_totale_2020'] = pivot_pop_totale[2020].sum()
+pivot_pop_totale['population_totale_2021'] = pivot_pop_totale[2021].sum()
+pivot_pop_totale['proportion_2019'] = pivot_pop_totale[2019] / pivot_pop_totale['population_totale_2019'] * 100
+pivot_pop_totale['proportion_2020'] = pivot_pop_totale[2020] / pivot_pop_totale['population_totale_2020'] * 100
+pivot_pop_totale['proportion_2021'] = pivot_pop_totale[2021] / pivot_pop_totale['population_totale_2021'] * 100
 
 ## Graphiques 
 
@@ -79,6 +88,33 @@ plt.legend()
 plt.tight_layout()
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/evolution_population_avec_contrib.png")
+
+## Graphique : proportion de la population par arrondissement
+
+arrondissement = pivot_pop_totale.index.str[-2:]#Je coupe pour n'avoir que les 2 chiffres.
+annees = pivot_pop_totale[[2019,2020,2021]].columns
+proportion = [pivot_pop_totale[f"proportion_{annee}"] for annee in annees]
+bar_width = 0.25
+x = np.arange(len(arrondissement))
+
+# Création de la figure et des sous-graphiques
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Histogrammes pour chaque année
+for i, (annee, proportion) in enumerate(zip(annees, proportion)):
+    ax.bar(x + i * bar_width, proportion, width=bar_width, label=f"Proportion {annee}")
+
+# Ajout des labels et titres
+ax.set_xticks(x + bar_width)
+ax.set_xticklabels(arrondissement)
+ax.set_xlabel("Arrondissements")
+ax.set_ylabel("Proportion")
+ax.set_title("Proportions de la population par arrondissement (2019-2021)")
+ax.legend(title="Années")
+plt.tight_layout()
+
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/proportion_population.png")
+
 
 ## Cartographie
 
