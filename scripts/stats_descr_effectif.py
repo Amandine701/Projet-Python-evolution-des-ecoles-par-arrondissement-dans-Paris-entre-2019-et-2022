@@ -74,7 +74,7 @@ plt.xticks(x + bar_width, arrondissement, rotation=45)  # Centrer les labels des
 plt.legend(title="Année")
 plt.tight_layout()
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/nb_élève_par_annee.png")
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/nb_élève_par_annee.png")
 
 # Graphique : Evolution du nombre d'élèves par arrondissement classée
 
@@ -86,7 +86,7 @@ plt.title('Évolution en % du Nombre d’élèves (2019 à 2021)', fontsize=14)
 plt.xticks(rotation=45) #à enlever éventuellement
 plt.tight_layout()
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/evolution_nb_eleve_par_arrondissement.png")
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/evolution_effectif_par_arrondissement.png")
 
 # Graphique : Evolution du nombre d'élèves par arrondissement avec contribution 2020, classée
 
@@ -115,7 +115,7 @@ plt.xticks(x, pivot_df_sorted.index.str[-2:], rotation=45) #idem que 2 chiffres 
 plt.legend()
 plt.tight_layout()
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/evolution_avec_contrib.png")
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/evolution_effectif_avec_contrib.png")
 
 ## Graphique : proportion d'élèves par arrondissement
 
@@ -139,7 +139,7 @@ ax.set_title("Proportions d'élèves par arrondissement (2019 - 2021)")
 ax.legend(title="Années")
 plt.tight_layout()
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/proportion_effectifs.png")
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/proportion_effectifs.png")
 
 #fig, axes = plt.subplots(1, len(annees), figsize=(15, 5), sharey=True)
 #for i, annee in enumerate(annees):
@@ -170,25 +170,56 @@ petite_couronne.crs
 petite_couronne = petite_couronne.to_crs(2154)
 petite_couronne.crs
 
-
-
 petite_couronne_count = petite_couronne.merge(pivot_df).to_crs(2154)
 
-#Evol en niveau
-
-aplat = petite_couronne_count.plot(column="evolution_total_niveau", cmap="Reds_r", legend=True)
-aplat.set_axis_off()
-aplat.set_title("Evolution du nombre d'élèves entre 2019 et 2021, par arrondissement (en milliers)",y=1.0, pad=14)
-aplat
-
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/testt.png")
+set(petite_couronne.columns).intersection(set(pivot_df.columns))
 
 
-#evol en %
+## Evolution en niveau
 
-aplat = petite_couronne_count.plot(column="evolution_total", cmap="Reds_r", legend=True)
-aplat.set_axis_off()
-aplat.set_title("Evolution du nombre d'élèves entre 2019 et 2021, par arrondissement (en %)",y=1.0, pad=-14)
-aplat
+fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+aplat = petite_couronne_count.plot(
+    column="evolution_total_niveau",
+    cmap="Reds_r",
+    legend=True,
+    ax=ax,
+    legend_kwds={
+        "orientation": "horizontal",  # Rend la légende horizontale
+        "shrink": 0.5,  # Ajuste la taille de la barre de couleur
+        "pad": 0.1,  # Espacement entre la légende et la carte
+        "label": "Évolution en milliers"
+    }
+)
+ax.set_axis_off()
+ax.set_title(
+    "Evolution du nombre d'élèves par arrondissement entre 2019 et 2021",
+    y=1.05,  # Titre au-dessus de la carte
+    fontsize=16
+)
 
-plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/test5.png")
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/carte_evol_effectifs_niveau.png")
+
+
+## Evolution en %
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+aplat = petite_couronne_count.plot(
+    column="evolution_total",
+    cmap="Reds_r",
+    legend=True,
+    ax=ax,
+    legend_kwds={
+        "orientation": "horizontal",  # Rend la légende horizontale
+        "shrink": 0.5,  # Ajuste la taille de la barre de couleur
+        "pad": 0.1,  # Espacement entre la légende et la carte
+        "label": "Évolution en %"
+    }
+)
+ax.set_axis_off()
+ax.set_title(
+    "Evolution du nombre d'élèves par arrondissement entre 2019 et 2021",
+    y=1.05,  # Titre au-dessus de la carte
+    fontsize=16
+)
+
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/carte_evol_effectifs_pourcentage.png")
