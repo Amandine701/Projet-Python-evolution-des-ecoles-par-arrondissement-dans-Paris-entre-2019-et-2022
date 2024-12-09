@@ -31,6 +31,7 @@ effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").repla
 # Total nombre d'élèves par arrondissement par année
 nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
 
+
 ## Pivot pour réorganiser les données
 pivot_df = nb_eleve_arrondissement_annee.pivot(index='code_postal', columns='rentree_scolaire', values='nombre_total_eleves')
 pivot_df['evolution_total'] = ((pivot_df[2021] - pivot_df[2019]) / pivot_df[2019]) * 100
@@ -44,6 +45,52 @@ pivot_df.index = pivot_df.index.astype(str)
 
 
 pivot_df_sorted = pivot_df.sort_values(by='evolution_total', ascending=False)
+
+## Calcul de la part de l'évolution des effectifs sur les périodes 2019-2020 et 2020-2021 pour l'ensemble de l'agglomération parisienne
+# Étape 1 : Perte absolue par période
+pivot_df['perte_2019_2020'] = pivot_df[2019] - pivot_df[2020]
+pivot_df['perte_2020_2021'] = pivot_df[2020] - pivot_df[2021]
+pivot_df['perte_2019_2021'] = pivot_df[2019] - pivot_df[2021]
+
+# Somme totale des pertes par période sur tous les arrondissements
+total_perte_2019_2020 = pivot_df['perte_2019_2020'].sum()
+total_perte_2020_2021 = pivot_df['perte_2020_2021'].sum()
+total_perte_2019_2021 = pivot_df['perte_2019_2021'].sum()
+
+# Part relative de chaque période dans la perte totale
+part_perte_2019_2020 = (total_perte_2019_2020 / total_perte_2019_2021) * 100
+part_perte_2020_2021 = (total_perte_2020_2021 / total_perte_2019_2021) * 100
+
+# Résultat sous forme de tableau
+table_pertes = {
+    'Période': ['2019-2020', '2020-2021', '2019-2021'],
+    'Perte absolue': [total_perte_2019_2020, total_perte_2020_2021, total_perte_2019_2021],
+    'Part relative (%)': [part_perte_2019_2020, part_perte_2020_2021, 100.0]
+}
+
+table_pertes_df = pd.DataFrame(table_pertes)
+
+print("Tableau des pertes par période :")
+print(table_pertes_df)
+
+##  Contribution des arrondissements 10, 11, 15, 18, 19 et 20
+arrondissements_cibles = ['75018', '75019', '75020', '75010', '75011', '75015']
+perte_arrondissements_cibles = pivot_df.loc[arrondissements_cibles, 'perte_2019_2021'].sum()
+
+# Part relative de ces arrondissements dans la perte totale
+part_arrondissements_cibles = (perte_arrondissements_cibles / total_perte_2019_2021) * 100
+
+# Résumé des contributions
+contributions = {
+    'Perte totale 2019-2021': total_perte_2019_2021,
+    'Perte 10e, 11e, 15e, 18e, 19e, 20e': perte_arrondissements_cibles,
+    'Part relative (%)': part_arrondissements_cibles
+}
+contributions_df = pd.DataFrame([contributions])
+
+# Affichage des résultats
+print("\nContribution des arrondissements 10e, 11e, 15e, 18e, 19e et 20e :")
+print(contributions_df)
 
 # Proportion d'élèves par arrondissement par année
 
