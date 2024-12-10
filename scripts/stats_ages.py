@@ -7,6 +7,8 @@ codes_insee_paris = [
     75116, 75117, 75118, 75119, 75120
 ]
 
+# Pyramide des âges en 2019
+
 # Filtrer les données pour Paris (codes INSEE) et ne conserver que la variable AGED100
 df_paris_ages = df_ages_2019[df_ages_2019['CODGEO'].isin(codes_insee_paris)][['CODGEO', 'AGED100']]
 
@@ -60,5 +62,50 @@ def plot_age_pyramid_for_arrondissement(arrondissement_code):
     plt.title(f'Pyramide des âges pour l\'arrondissement {arrondissement_code}')
     plt.show()
 
-# Exemple pour tracer la pyramide des âges pour l'arrondissement 75101 (Paris 1er)
-plot_age_pyramid_for_arrondissement('75101')
+# Tracés
+# Boucle pour tracer la pyramide des âges pour chaque arrondissement
+for code in codes_insee_paris:
+    plot_age_pyramid_for_arrondissement(str(code))
+    # Enregistrer le graphique dans un fichier
+    plt.savefig(f'pyramide_age_{code}_2019.png')
+    plt.close()  # on ferme la figure pour éviter une accumulation de graphiques
+
+
+# Pyramide des âges en 2020
+
+
+# Transformer la colonne 'codgeo' en chaîne de caractères
+df_ages_2020['CODGEO'] = df_ages_2020['CODGEO'].astype(str)
+
+# Filtrer les lignes correspondant à Paris
+df_paris_2020 = df_ages_2020[df_ages_2020['CODGEO'].isin(codes_insee_paris_str)]
+
+
+# Créer une colonne 'tranche_age' dans le dataframe en fonction de 'AGED100'
+df_paris_2020['tranche_age'] = pd.cut(df_ages_2020['AGED100'], bins=bins, labels=labels, right=False)
+
+
+# Création d'une fonction pour tracer une pyramide des âges pour chaque arrondissement (en regroupant les sexes)
+def plot_age_pyramid_for_arrondissement_2020(arrondissement_code):
+    # Filtrage des données pour l'arrondissement
+    df_arrondissement = df_paris_2020[df_paris_2020['CODGEO'] == arrondissement_code]
+    
+    # Comptage du nombre d'individus dans chaque tranche d'âge (sans séparer par sexe)
+    age_distribution = df_arrondissement.groupby('tranche_age')['NB'].sum()
+    
+    # Tracé la pyramide des âges
+    age_distribution.plot(kind='barh', color='lightblue', figsize=(10, 6))
+    
+    # Ajout des labels et un titre
+    plt.xlabel('Nombre d\'individus')
+    plt.ylabel('Tranches d\'âge')
+    plt.title(f'Pyramide des âges pour l\'arrondissement {arrondissement_code} en 2020')
+    plt.show()
+
+# Tracés
+# Boucle pour tracer la pyramide des âges pour chaque arrondissement
+for code in codes_insee_paris:
+    plot_age_pyramid_for_arrondissement_2020(str(code))
+    # Enregistrer le graphique dans un fichier
+    plt.savefig(f'pyramide_age_{code}_2020.png')
+    plt.close()  # on ferme la figure pour éviter une accumulation de graphiques

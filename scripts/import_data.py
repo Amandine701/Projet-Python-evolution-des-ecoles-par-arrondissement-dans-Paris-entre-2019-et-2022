@@ -174,6 +174,7 @@ else:
 print(mobscol_2020.head(20))
 
 # Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
+en 2019
 
 #  Chargement fichier ZIP depuis l'URL
 url = 'https://www.insee.fr/fr/statistiques/fichier/6456157/BTT_TD_POP1B_2019.zip'
@@ -197,8 +198,35 @@ with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
 file_to_read = "extracted_files/BTT_TD_POP1B_2019.csv" 
 
 # Transformation du fichier CSV dans un DataFrame
-#df_ages_2019 = pd.read_csv(file_to_read)
 df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
+
+# Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
+en 2020
+
+#  Chargement fichier ZIP depuis l'URL
+url = 'https://www.insee.fr/fr/statistiques/fichier/7631680/TD_POP1B_2020_csv.zip'
+zip_filename = 'BTT_TD_POP1B_2020.zip'
+
+# Téléchargement le fichier 
+if not os.path.exists(zip_filename):
+    response = requests.get(url)
+    with open(zip_filename, 'wb') as file:
+        file.write(response.content)
+    print(f"Fichier {zip_filename} téléchargé avec succès.")
+else:
+    print(f"Le fichier {zip_filename} existe déjà.")
+
+
+# Extraction du contenu du fichier ZIP
+with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
+    zip_ref.extractall("extracted_files")
+    print("Fichiers extraits.")
+
+file_to_read = "extracted_files/TD_POP1B_2020.csv" 
+
+# Transformation du fichier CSV dans un DataFrame
+df_ages_2020 = pd.read_csv('extracted_files/TD_POP1B_2020.csv', delimiter=';', encoding='latin1')
+
 
 
 
