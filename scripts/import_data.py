@@ -200,6 +200,36 @@ file_to_read = "extracted_files/BTT_TD_POP1B_2019.csv"
 # Transformation du fichier CSV dans un DataFrame
 df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
 
+
+
+
+# Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
+en 2021
+
+#  Chargement fichier ZIP depuis l'URL
+url = 'https://www.insee.fr/fr/statistiques/fichier/8202264/TD_POP1B_2021_csv.zip'
+zip_filename = 'TD_POP1B_2021.zip'
+
+# Téléchargement le fichier 
+if not os.path.exists(zip_filename):
+    response = requests.get(url)
+    with open(zip_filename, 'wb') as file:
+        file.write(response.content)
+    print(f"Fichier {zip_filename} téléchargé avec succès.")
+else:
+    print(f"Le fichier {zip_filename} existe déjà.")
+
+
+# Extraction du contenu du fichier ZIP
+with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
+    zip_ref.extractall("extracted_files")
+    print("Fichiers extraits.")
+
+file_to_read = "extracted_files/TD_POP1B_2021.csv" 
+
+# Transformation du fichier CSV dans un DataFrame
+df_ages_2021 = pd.read_csv('extracted_files/TD_POP1B_2021.csv', delimiter=';', encoding='latin1')
+
 # Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
 en 2020
 
@@ -230,25 +260,5 @@ df_ages_2020 = pd.read_csv('extracted_files/TD_POP1B_2020.csv', delimiter=';', e
 
 
 
-# URL du fichier CSV
-url = "https://static.data.gouv.fr/resources/population-municipale-t-popmun-com/20240712-074138/t-popmun-2021-com.csv"
 
-# Chargement du fichier
-df = pd.read_csv(url, delimiter=',', encoding='latin1')
 
-# Dans le fichier précédent, on ne conserve que les arrondissements, les années 2019, 2020 et 2021 et l'âge
-# Liste des codes INSEE des arrondissements parisiens
-paris_codes = [
-    75101, 75102, 75103, 75104, 75105, 75106, 75107, 75108,
-    75109, 75110, 75111, 75112, 75113, 75114, 75115, 75116,
-    75117, 75118, 75119, 75120
-]
-
-# On filtre les données pour les com_code parisiens et les années spécifiques
-paris_ages = df[
-    (df['com_code'].isin(paris_codes)) &         # Garde uniquement les com_code de la liste
-    (df['popmun_annee'].isin([2019, 2020, 2021]))  # Garde les années 2019, 2020, 2021
-]
-
-# On conserve uniquement les colonnes ARM, popmun_annee, et popmun_age
-paris_ages = paris_ages[['com_code', 'popmun_annee', 'popmun_age']]
