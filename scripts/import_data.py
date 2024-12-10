@@ -12,13 +12,11 @@ print(effectifs_ecoles.head(20))
 code_geographique = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/2648d606-504d-4e91-ac1f-d70c92adc039", sep = ",", header=0, encoding='windows-1252')
 print(code_geographique.head(20))
 
-#Filtrer pour ne garder que Paris dans les deux bases de données 
+# Filtrer pour ne conserver que Paris dans les deux bases de données
 #Matcher par arrondissement ? (Code postal) 
 #Le nom de la commune dans pop_mun se récupère à partir de la colonne com_code à croiser avec code_géographique pour avoir le nom de la commune
 
-print(pop_mun.columns)
 print(effectifs_ecoles.columns)
-pop_mun["popmun_annee"].unique()
 effectifs_ecoles["Rentrée scolaire"].unique()
 
 
@@ -175,4 +173,54 @@ else:
 
 print(mobscol_2020.head(20))
 
-# 
+# Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
+
+#  Chargement fichier ZIP depuis l'URL
+url = 'https://www.insee.fr/fr/statistiques/fichier/6456157/BTT_TD_POP1B_2019.zip'
+zip_filename = 'BTT_TD_POP1B_2019.zip'
+
+# Téléchargement le fichier 
+if not os.path.exists(zip_filename):
+    response = requests.get(url)
+    with open(zip_filename, 'wb') as file:
+        file.write(response.content)
+    print(f"Fichier {zip_filename} téléchargé avec succès.")
+else:
+    print(f"Le fichier {zip_filename} existe déjà.")
+
+
+# Extraction du contenu du fichier ZIP
+with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
+    zip_ref.extractall("extracted_files")
+    print("Fichiers extraits.")
+
+file_to_read = "extracted_files/BTT_TD_POP1B_2019.csv" 
+
+# Transformation du fichier CSV dans un DataFrame
+#df_ages_2019 = pd.read_csv(file_to_read)
+df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
+
+
+
+# URL du fichier CSV
+url = "https://static.data.gouv.fr/resources/population-municipale-t-popmun-com/20240712-074138/t-popmun-2021-com.csv"
+
+# Chargement du fichier
+df = pd.read_csv(url, delimiter=',', encoding='latin1')
+
+# Dans le fichier précédent, on ne conserve que les arrondissements, les années 2019, 2020 et 2021 et l'âge
+# Liste des codes INSEE des arrondissements parisiens
+paris_codes = [
+    75101, 75102, 75103, 75104, 75105, 75106, 75107, 75108,
+    75109, 75110, 75111, 75112, 75113, 75114, 75115, 75116,
+    75117, 75118, 75119, 75120
+]
+
+# On filtre les données pour les com_code parisiens et les années spécifiques
+paris_ages = df[
+    (df['com_code'].isin(paris_codes)) &         # Garde uniquement les com_code de la liste
+    (df['popmun_annee'].isin([2019, 2020, 2021]))  # Garde les années 2019, 2020, 2021
+]
+
+# On conserve uniquement les colonnes ARM, popmun_annee, et popmun_age
+paris_ages = paris_ages[['com_code', 'popmun_annee', 'popmun_age']]
