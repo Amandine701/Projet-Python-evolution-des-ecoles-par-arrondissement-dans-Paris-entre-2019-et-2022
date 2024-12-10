@@ -175,6 +175,7 @@ print(mobscol_2020.head(20))
 
 # Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
 en 2019
+#https://www.insee.fr/fr/statistiques/8272002#documentation
 
 #  Chargement fichier ZIP depuis l'URL
 url = 'https://www.insee.fr/fr/statistiques/fichier/6456157/BTT_TD_POP1B_2019.zip'
@@ -205,6 +206,7 @@ df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';
 
 # Fichier détaillant la population par classe d'âge dans les arrondissements parisiens
 en 2021
+#https://www.insee.fr/fr/statistiques/8202264
 
 #  Chargement fichier ZIP depuis l'URL
 url = 'https://www.insee.fr/fr/statistiques/fichier/8202264/TD_POP1B_2021_csv.zip'
