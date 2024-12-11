@@ -12,3 +12,18 @@ Variable d'intérêt :
 
 visualisation : évolution P1/P2
 pyramides ages par arrondissement 
+
+Modélisation : régression des effefctifs par année et arrondissement sur une constante, certaines tranches d'âges (en âge d'avoir des enfants), et des effets fixes par arrondissement. 
+Pour ce faire : merger les bases créées (pivot_df et population_pivot - ou des noms équivalents), crééer les 20 dummys (généralement il existe des fonctions déjà créées qui le font déjà) pour les arrondissements 
+Age moyen du premier enfants : 33 ans à Paris 
+y = a + b1x1 + b2x2 + b3x3 + H + e
+x1 : proportion de gens entre 30 et 40 ans dans l'arrondissement 
+x2 : proportion de cadres dans l'arrondissement 
+x3 : proportion de T3 ou + dans l'arrondissement 
+
+2e modélisation : regression en différence 
+
+Limite : on aurait pu intégrer le nombre de naissance 3 ans avant 
+Ouverture : étendre à la Grande Couronne pour voir si la baisse d'élèves dans Paris se traduit par une augmentation en banlieue (= mobilité). 
+Explication par exemple : hausse des meublés touristiques à Paris (mais manque de données dans les bases qu'on a)
+
