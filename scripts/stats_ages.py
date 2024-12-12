@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Liste des codes INSEE pour Paris (en fonction des arrondissements et autres zones spécifiques)
 codes_insee_paris = [
@@ -6,6 +7,10 @@ codes_insee_paris = [
     75108, 75109, 75110, 75111, 75112, 75113, 75114, 75115,
     75116, 75117, 75118, 75119, 75120
 ]
+
+df_ages_2021 = pd.read_csv('extracted_files/TD_POP1B_2021.csv', delimiter=';', encoding='latin1')
+df_ages_2020 = pd.read_csv('extracted_files/TD_POP1B_2020.csv', delimiter=';', encoding='latin1')
+df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
 
 # Pyramide des âges en 2019
 
