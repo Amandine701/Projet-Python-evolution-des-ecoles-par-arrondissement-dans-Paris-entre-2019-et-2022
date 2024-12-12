@@ -1,3 +1,15 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from unidecode import unidecode 
+import matplotlib.ticker as mticker
+import geopandas as gpd
+from cartiflette import carti_download
+
+pop_2019 = pd.read_csv("extracted_files/FD_LOGEMTZA_2019.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2020 = pd.read_csv("extracted_files/FD_LOGEMTZA_2020.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2021 = pd.read_csv("extracted_files/FD_LOGEMTZA_2021.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+
 # Recensement
 
 ## Sélectionne uniquement Paris
@@ -20,7 +32,6 @@ pop_2019_paris["ANNEE"] = 2019
 
 ## Focus sur le nombre total d'habitants, compris comme la somme des habitants d'un logement
 pop_paris = pd.concat([pop_2021_paris, pop_2020_paris, pop_2019_paris], ignore_index=True)
-print(pop_paris.head(20))
 pop_paris = pop_paris[pop_paris['INPER'] != 'Y']
 pop_paris['INPER'] = pop_paris['INPER'].astype(int)
 

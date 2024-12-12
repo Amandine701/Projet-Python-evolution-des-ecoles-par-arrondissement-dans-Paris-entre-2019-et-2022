@@ -1,4 +1,5 @@
-#==== attention liste des modulesà installer dans son BASH
+# ------------------------------- Environnement --------------------------------
+
 #pip install unidecode
 #pip install py7zr geopandas openpyxl tqdm s3fs 
 #pip install PyYAML xlrd
@@ -7,14 +8,15 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from unidecode import unidecode 
 import matplotlib.ticker as mticker
 import geopandas as gpd
 from cartiflette import carti_download
 
+# ------------------------- Chargement base de donnée et filtrage -----------------------------
 
-# Base de données effectifs_ecoles ---------
-## Ne garde que les rentrées scolaires 2019, 2020, 2021 et Paris (via le code postal)
+effectifs_ecoles = pd.read_csv("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes/exports/csv?lang=fr&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B", sep = ";", header = 0)
 
 effectifs_ecoles_paris = effectifs_ecoles[
     (effectifs_ecoles['Rentrée scolaire'].isin([2019, 2020, 2021])) &
@@ -22,15 +24,13 @@ effectifs_ecoles_paris = effectifs_ecoles[
     # petit bug ici avec le _192021 (effectifs_ecoles_192021['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
     (effectifs_ecoles['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
 
-## Renommer les colonnes
-
-#Plus simplement utiliser le module unidecode 
-
 effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
 
-# Total nombre d'élèves par arrondissement par année
-nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
+# --------------------------- Description des données -------------------------------
 
+## --------- Total nombre d'élèves par arrondissement par année ----------
+
+nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
 
 ## Pivot pour réorganiser les données
 pivot_df = nb_eleve_arrondissement_annee.pivot(index='code_postal', columns='rentree_scolaire', values='nombre_total_eleves')
@@ -43,8 +43,9 @@ pivot_df['evolution_total_niveau'] = (pivot_df[2021] - pivot_df[2019])
 pivot_df['INSEE_COG'] = (pivot_df.index.astype(int)+ 100).astype(str)
 pivot_df.index = pivot_df.index.astype(str)
 
-
 pivot_df_sorted = pivot_df.sort_values(by='evolution_total', ascending=False)
+
+## --------- Evolution des effectifs -------------
 
 ## Calcul de la part de l'évolution des effectifs sur les périodes 2019-2020 et 2020-2021 pour l'ensemble de l'agglomération parisienne
 # Étape 1 : Perte absolue par période
@@ -70,8 +71,8 @@ table_pertes = {
 
 table_pertes_df = pd.DataFrame(table_pertes)
 
-print("Tableau des pertes par période :")
-print(table_pertes_df)
+#print("Tableau des pertes par période :")
+#print(table_pertes_df)
 
 ##  Contribution des arrondissements 10, 11, 15, 18, 19 et 20
 arrondissements_cibles = ['75018', '75019', '75020', '75010', '75011', '75015']
@@ -89,10 +90,10 @@ contributions = {
 contributions_df = pd.DataFrame([contributions])
 
 # Affichage des résultats
-print("\nContribution des arrondissements 10e, 11e, 15e, 18e, 19e et 20e :")
-print(contributions_df)
+#print("\nContribution des arrondissements 10e, 11e, 15e, 18e, 19e et 20e :")
+#print(contributions_df)
 
-# Proportion d'élèves par arrondissement par année
+## -------- Proportion d'élèves par arrondissement par année ----------
 
 pivot_df.columns
 pivot_df['effectifs_totaux_2019'] = pivot_df[2019].sum()
@@ -102,7 +103,10 @@ pivot_df['proportion_2019'] = pivot_df[2019] / pivot_df['effectifs_totaux_2019']
 pivot_df['proportion_2020'] = pivot_df[2020] / pivot_df['effectifs_totaux_2020'] * 100
 pivot_df['proportion_2021'] = pivot_df[2021] / pivot_df['effectifs_totaux_2021'] * 100
 
-# Graphique : Nombre total d'élèves pas arrondissement par année
+
+# ----------------------------- Visualisation des données ------------------------
+
+## -------- Graphique : Nombre total d'élèves pas arrondissement par année ----------
 
 arrondissement = pivot_df.index.str[-2:]#Je coupe pour n'avoir que les 2 chiffres.
 annees = pivot_df[[2019,2020,2021]].columns
@@ -123,7 +127,7 @@ plt.tight_layout()
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/nb_élève_par_annee.png")
 
-# Graphique : Evolution du nombre d'élèves par arrondissement classée
+## -------- Graphique : Evolution du nombre d'élèves par arrondissement classée ---------
 
 plt.figure(figsize=(10, 6))
 plt.bar(pivot_df_sorted.index.str[-2:], pivot_df_sorted['evolution_total'], color='skyblue') #Je garde que les 2 numéros du code postale
@@ -135,7 +139,7 @@ plt.tight_layout()
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/evolution_effectif_par_arrondissement.png")
 
-# Graphique : Evolution du nombre d'élèves par arrondissement avec contribution 2020, classée
+## -------- Graphique : Evolution du nombre d'élèves par arrondissement avec contribution 2020, classée ------
 
 x = np.arange(len(pivot_df_sorted))  # Position des barres
 width = 0.6
@@ -164,7 +168,7 @@ plt.tight_layout()
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/evolution_effectif_avec_contrib.png")
 
-## Graphique : proportion d'élèves par arrondissement
+## -------- Graphique : proportion d'élèves par arrondissement ------------
 
 proportion = [pivot_df[f"proportion_{annee}"] for annee in annees]
 bar_width = 0.25
@@ -188,20 +192,7 @@ plt.tight_layout()
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/proportion_effectifs.png")
 
-#fig, axes = plt.subplots(1, len(annees), figsize=(15, 5), sharey=True)
-#for i, annee in enumerate(annees):
-#    proportions = pivot_df[f"proportion_{annee}"]
-#    axes[i].bar(arrondissement, proportion, color=f"C{i}")
-#    axes[i].set_title(f"Proportions en {annee}")
-#    axes[i].set_xlabel("Arrondissements")
-#    if i == 0:  # Ajouter un label pour l'axe Y uniquement sur le premier
-#        axes[i].set_ylabel("Proportion")
-#    axes[i].set_ylim(0, max(pivot_df[[f"proportion_{a}" for a in annees]].max().max() * 1.1, 0.3))  # Garde une échelle cohérente
-#plt.tight_layout()
-#plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/proportion_effectifs2.png")
-
-
-#=============== Cartographie
+# --------------------------- Cartographie --------------------------------
 
 petite_couronne = carti_download(
     crs=4326,
@@ -216,13 +207,9 @@ petite_couronne = carti_download(
 petite_couronne.crs
 petite_couronne = petite_couronne.to_crs(2154)
 petite_couronne.crs
-
 petite_couronne_count = petite_couronne.merge(pivot_df).to_crs(2154)
 
-set(petite_couronne.columns).intersection(set(pivot_df.columns))
-
-
-## Evolution en niveau
+## -------- Evolution en niveau -----------------
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 8))
 aplat = petite_couronne_count.plot(
@@ -246,8 +233,7 @@ ax.set_title(
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/carte_evol_effectifs_niveau.png")
 
-
-## Evolution en %
+## ----------- Evolution en % -------------
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 8))
 aplat = petite_couronne_count.plot(
