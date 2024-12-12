@@ -125,7 +125,7 @@ with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
 file_to_read = "extracted_files/BTT_TD_POP1B_2019.csv" 
 
 # Transformation du fichier CSV dans un DataFrame
-df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
+df_ages_2019 = pd.read_csv(file_to_read, delimiter=';', encoding='latin1')
 
 ## ---------- Fichier détaillant la population par classe d'âge dans les arrondissements parisiens en 2020 ------------
 
