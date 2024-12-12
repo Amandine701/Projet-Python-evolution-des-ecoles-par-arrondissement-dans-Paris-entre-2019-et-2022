@@ -4,8 +4,10 @@ Question : Est-ce que l'évolution de la démographie des écoles est en accord 
 Données :
 effectifs par classe et par établissement https://data.education.gouv.fr/explore/dataset/fr-en-ecoles-effectifs-nb_classes/table/?disjunctive.rentree_scolaire&disjunctive.region_academique&disjunctive.academie&disjunctive.departement&disjunctive.commune&disjunctive.numero_ecole&disjunctive.denomination_principale&disjunctive.patronyme&disjunctive.secteur&disjunctive.code_postal&sort=tri
 Recensement (données INSEE) : https://www.insee.fr/fr/information/2008354
+https://www.insee.fr/fr/statistiques/8202264
+https://www.insee.fr/fr/statistiques/8272002#documentation
 
-Variable d'intérêt :
+Variables d'intérêt :
 - P1 = proportion d'écoles dans chaque arrondissement (nombre écoles arrondissements / total école paris)
 - P2 = proportion population de chaque arrondissement 
 - P3 = proportion élèves par écoles arrondissement 
@@ -13,7 +15,7 @@ Variable d'intérêt :
 visualisation : évolution P1/P2
 pyramides ages par arrondissement 
 
-Modélisation : régression des effefctifs par année et arrondissement sur une constante, certaines tranches d'âges (en âge d'avoir des enfants), et des effets fixes par arrondissement. 
+Modélisation : régression des effectifs par année et arrondissement sur une constante, certaines tranches d'âges (en âge d'avoir des enfants), et des effets fixes par arrondissement. 
 Pour ce faire : merger les bases créées (pivot_df et population_pivot - ou des noms équivalents), crééer les 20 dummys (généralement il existe des fonctions déjà créées qui le font déjà) pour les arrondissements 
 Age moyen du premier enfants : 33 ans à Paris 
 y = a + b1x1 + b2x2 + b3x3 + H + e
