@@ -54,11 +54,6 @@ df_paris_2019 = df_ages_2019[df_ages_2019['CODGEO'].isin(codes_insee_paris_str)]
 # Créer une colonne 'tranche_age' dans le dataframe en fonction de 'AGED100'
 df_paris_2019['tranche_age'] = pd.cut(df_ages_2019['AGED100'], bins=bins, labels=labels, right=False)
 
-
-Pyramid_2019 =df_paris_2019.groupby('tranche_age')['NB'].sum()
-Pyramid_2020 =df_paris_2020.groupby('tranche_age')['NB'].sum()
-
-
 # Boucle pour tracer la pyramide des âges pour chaque arrondissement
 for code in codes_insee_paris:
     plot_age_pyramid_for_arrondissement(2019, str(code))
@@ -103,3 +98,20 @@ for code in codes_insee_paris:
     # Enregistrer le graphique dans un fichier
     plt.savefig('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2021/pyramide_age_{code}_2021.png')
     # on ferme la figure pour éviter une accumulation de graphiques
+
+
+#==== Pyramides des âges globales
+
+
+Pyramid_2019 =df_paris_2019.groupby('tranche_age')['NB'].sum()
+Pyramid_2020 =df_paris_2020.groupby('tranche_age')['NB'].sum()
+Pyramid_2021 =df_paris_2021.groupby('tranche_age')['NB'].sum()
+Pyramide_ecart = Pyramid_2021 - Pyramid_2019
+
+df = Pyramide_ecart.to_frame(name="Effectifs")
+
+df.plot(kind='barh', color='darkblue', figsize=(10, 6)) 
+
+# Ajout des labels et un titre
+plt.savefig('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramide_Paris_ecart1921.png')
+
