@@ -44,7 +44,11 @@ pop_paris['Maternelle'] = pop_paris['INP5M']-pop_paris['INP3M']
 pop_paris['Elementaire'] = pop_paris['INP11M']-pop_paris['INP5M']
 pop_paris['Primaire'] = pop_paris['INP11M']-pop_paris['INP3M']
 
-#pop_totale_arrondissement = pop_paris.groupby(['ANNEE', 'ARM'])['INPER'].sum().reset_index()
+pop_totale = pop_paris.groupby(['ANNEE'])['INPER'].sum().reset_index()
+pop_totale["Evolution en niveau"] = pop_totale["INPER"].diff().fillna(0)
+pop_totale["Evolution en %"] = pop_totale["INPER"].pct_change().fillna(0) * 100
+pop_totale.rename(columns={'INPER':"Nombre d'habitants en logement ordinaire"}, inplace=True)
+
 
 pop_totale_arrondissement = pop_paris.groupby(['ANNEE', 'ARM']).agg({'INPER': 'sum','INP3M': 'sum','INP5M': 'sum','INP11M': 'sum','Maternelle': 'sum','Elementaire': 'sum','Primaire': 'sum'}).reset_index()
 

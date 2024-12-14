@@ -54,6 +54,11 @@ df_paris_2019 = df_ages_2019[df_ages_2019['CODGEO'].isin(codes_insee_paris_str)]
 # Créer une colonne 'tranche_age' dans le dataframe en fonction de 'AGED100'
 df_paris_2019['tranche_age'] = pd.cut(df_ages_2019['AGED100'], bins=bins, labels=labels, right=False)
 
+
+Pyramid_2019 =df_paris_2019.groupby('tranche_age')['NB'].sum()
+Pyramid_2020 =df_paris_2020.groupby('tranche_age')['NB'].sum()
+
+
 # Boucle pour tracer la pyramide des âges pour chaque arrondissement
 for code in codes_insee_paris:
     plot_age_pyramid_for_arrondissement(2019, str(code))
