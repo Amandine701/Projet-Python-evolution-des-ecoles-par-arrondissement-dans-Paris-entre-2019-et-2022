@@ -1,5 +1,6 @@
 import pandas as pd
 import statsmodels.api as sm
+from unidecode import unidecode
 
 # régression des effectifs par année et arrondissement sur une constante, certaines tranches d'âges (en âge d'avoir des enfants), et des effets fixes par arrondissement. 
 # Etape 1 : on sélectionne les données nécessaires au sein de trois dataframes nb_eleve_arrondissement_annee, pop_all_years (extrait de la base logement), proportion_30_40_all_years (extrait de la base de recensement sur l'âge)
@@ -126,6 +127,10 @@ pop_all_years_reg = pd.concat([pop_2019_reg, pop_2020_reg, pop_2021_reg], ignore
 #---------------------------------Création du dataframe proportion_30_40_all_years (base de données recensement détaillant l'âge)----------------------------------
 
 # On extrait la proportion d'adultes âgés entre 30 et 40 pour chaque arrondissement
+
+df_ages_2021 = pd.read_csv('extracted_files/TD_POP1B_2021.csv', delimiter=';', encoding='latin1')
+df_ages_2020 = pd.read_csv('extracted_files/TD_POP1B_2020.csv', delimiter=';', encoding='latin1')
+df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
 
 # En 2019
 # Liste des codes INSEE pour Paris (en fonction des arrondissements et autres zones spécifiques)
@@ -271,7 +276,7 @@ y = merged_data_reg_clean['nombre_total_eleves']
 
 # Modèle de régression linéaire
 model_effectifs_absolus = sm.OLS(y, X)
-results = mmodel_effectifs_absolus.fit()
+results = model_effectifs_absolus.fit()
 
 # Résumé des résultats
 print(results.summary())
