@@ -42,10 +42,11 @@ pop_2019['NBPI'] = pd.to_numeric(pop_2019['NBPI'], errors='coerce')
 paris_data_2019_reg = pop_2019[pop_2019['ARM'].between(75101, 75120)].copy()
 
 # Étape 2 : On calcule la proportion de T3
-paris_data_2019_reg.loc[:, 'is_T3'] = paris_data_2019['NBPI'] >= 3
+
+paris_data_2019_reg.loc[:, 'is_T3'] = paris_data_2019_reg['NBPI'] >= 3
 
 # Création de la colonne 'is_bac+5' en fonction de DIPLM
-paris_data_2019_reg.loc[:, 'is_bac+5'] = paris_data_2019['DIPLM'].isin(['18', '19'])
+paris_data_2019_reg.loc[:, 'is_bac+5'] = paris_data_2019_reg['DIPLM'].isin(['18', '19'])
 
 
 # Affichage des premières lignes pour vérifier
