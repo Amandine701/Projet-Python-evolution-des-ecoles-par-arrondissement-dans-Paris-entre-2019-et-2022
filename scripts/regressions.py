@@ -1,28 +1,34 @@
 import pandas as pd
 import statsmodels.api as sm
-
+from unidecode import unidecode
 # régression des effectifs par année et arrondissement sur une constante, certaines tranches d'âges (en âge d'avoir des enfants), et des effets fixes par arrondissement. 
 
 # Extraction des données sur les effectifs pour les années 2019, 2020 et 2021 
 # On reprend le code de stats_descr_effectif 
 
-#effectifs_ecoles_paris = effectifs_ecoles[
-#    (effectifs_ecoles['Rentrée scolaire'].isin([2019, 2020, 2021])) &
-#    (effectifs_ecoles["Région académique"] == "ILE-DE-FRANCE") &
-#    # petit bug ici avec le _192021 (effectifs_ecoles_192021['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
-#    (effectifs_ecoles['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
+effectifs_ecoles = pd.read_csv("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes/exports/csv?lang=fr&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B", sep = ";", header = 0)
+effectifs_ecoles_paris = effectifs_ecoles[
+   (effectifs_ecoles['Rentrée scolaire'].isin([2019, 2020, 2021])) &
+   (effectifs_ecoles["Région académique"] == "ILE-DE-FRANCE") &
+   # petit bug ici avec le _192021 (effectifs_ecoles_192021['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
+   (effectifs_ecoles['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
 
 ## Renommer les colonnes
 
 #Plus simplement utiliser le module unidecode 
 
-#effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
+effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
 
 # Total nombre d'élèves par arrondissement par année
-#nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
+nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
 
 
 # Extraction des données dans les dataframes pop_2019, pop_2020 et pop_2021 pour ne conserver que les arrondissements et la proportion de T3
+
+pop_2019 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2019.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2020 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2020.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2021 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2021.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+
 
 # En 2019
 # On convertit la colonne ARM et NBPI en type numérique
@@ -111,6 +117,10 @@ codes_insee_paris = [
     75108, 75109, 75110, 75111, 75112, 75113, 75114, 75115,
     75116, 75117, 75118, 75119, 75120
 ]
+
+df_ages_2021 = pd.read_csv('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/TD_POP1B_2021.csv', delimiter=';', encoding='latin1')
+df_ages_2020 = pd.read_csv('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/TD_POP1B_2020.csv', delimiter=';', encoding='latin1')
+df_ages_2019 = pd.read_csv('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
 
 # On filtre les données pour Paris (codes INSEE) et ne conserver que la variable AGED100
 df_paris_ages_2019 = df_ages_2019[df_ages_2019['CODGEO'].isin(codes_insee_paris)][['CODGEO', 'AGED100', 'SEXE', 'NB']]
@@ -219,8 +229,8 @@ X = sm.add_constant(X)
 y = merged_data_clean['nombre_total_eleves']
 
 # Modèle de régression linéaire
-model = sm.OLS(y, X)
-results = model.fit()
+model_2019 = sm.OLS(y, X)
+results = model_2019.fit()
 
 # Résumé des résultats
 print(results.summary())
@@ -265,8 +275,8 @@ X = sm.add_constant(X)
 y = merged_data_clean['nombre_total_eleves']
 
 # Modèle de régression linéaire
-model = sm.OLS(y, X)
-results = model.fit()
+model_2020 = sm.OLS(y, X)
+results = model_2020.fit()
 
 # Résumé des résultats
 print(results.summary())
@@ -311,8 +321,8 @@ X = sm.add_constant(X)
 y = merged_data_clean['nombre_total_eleves']
 
 # Modèle de régression linéaire
-model = sm.OLS(y, X)
-results = model.fit()
+model_2021 = sm.OLS(y, X)
+results = model_2021.fit()
 
 # Résumé des résultats
 print(results.summary())

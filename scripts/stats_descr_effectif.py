@@ -1,10 +1,10 @@
 # ------------------------------- Environnement --------------------------------
 
-# !pip install unidecode
-# !pip install py7zr geopandas openpyxl tqdm s3fs 
-# !pip install PyYAML xlrd
-# !pip install git+https://github.com/inseefrlab/cartiflette
-# !pip install urllib3==1.26.5 #cartiflette nécessite une version de urllib3 antérieure à la deuxième, il faut donc installer une ancienne version.
+# pip install unidecode
+# pip install py7zr geopandas openpyxl tqdm s3fs 
+# pip install PyYAML xlrd
+# pip install git+https://github.com/inseefrlab/cartiflette
+# pip install urllib3==1.26.5 #cartiflette nécessite une version de urllib3 antérieure à la deuxième, il faut donc installer une ancienne version.
 
 import matplotlib.pyplot as plt
 import numpy as np
