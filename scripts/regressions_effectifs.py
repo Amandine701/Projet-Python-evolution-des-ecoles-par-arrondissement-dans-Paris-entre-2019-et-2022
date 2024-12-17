@@ -317,7 +317,7 @@ indicatrices_zones = pd.get_dummies(merged_data_reg_clean['zone_geographique'], 
 
 # Exemple de suppression d'une indicatrice 
 # Ici, nous supprimons la colonne "zone_centre" pour éviter une colinéarité si nécessaire.
-indicatrices_zones = indicatrices_zones.drop(columns=['zone_autre'], errors='ignore')
+indicatrices_zones = indicatrices_zones.drop(columns=['zone_centre'], errors='ignore')
 
 # On définit les variables explicatives (on exclut CODGEO et nombre_total_eleves)
 X = pd.concat([
