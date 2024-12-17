@@ -100,9 +100,8 @@ codes_insee_paris = [
     75116, 75117, 75118, 75119, 75120
 ]
 
-df_ages_2021 = pd.read_csv('extracted_files/TD_POP1B_2021.csv', delimiter=';', encoding='latin1')
-df_ages_2020 = pd.read_csv('extracted_files/TD_POP1B_2020.csv', delimiter=';', encoding='latin1')
-df_ages_2019 = pd.read_csv('extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
+df_ages_2021 = pd.read_csv('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/TD_POP1B_2021.csv', delimiter=';', encoding='latin1')
+df_ages_2019 = pd.read_csv('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/BTT_TD_POP1B_2019.csv', delimiter=';', encoding='latin1')
 
 # On filtre les données pour Paris (codes INSEE) et ne conserver que la variable AGED100
 df_paris_ages_2019_reg = df_ages_2019[df_ages_2019['CODGEO'].isin(codes_insee_paris)][['CODGEO', 'AGED100', 'SEXE', 'NB']]
