@@ -30,9 +30,9 @@ nb_eleve_arrondissement_annee = effectifs_ecoles_paris.groupby(['code_postal', '
 
 nb_eleve_arrondissement_annee_reg = nb_eleve_arrondissement_annee
 
-pop_2019 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2019.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
-pop_2020 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2020.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
-pop_2021 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2021.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2019 = pd.read_csv("/home/onyxia/work/extracted_files/FD_LOGEMTZA_2019.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2020 = pd.read_csv("/home/onyxia/work/extracted_files/FD_LOGEMTZA_2020.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2021 = pd.read_csv("/home/onyxia/work/extracted_files/FD_LOGEMTZA_2021.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
 
 # En 2019
 # On convertit la colonne ARM et NBPI en type numérique
@@ -42,7 +42,7 @@ pop_2019['NBPI'] = pd.to_numeric(pop_2019['NBPI'], errors='coerce')
 # On filtre pour les arrondissements parisiens (ARM entre 75101 et 75120)
 paris_data_2019_reg = pop_2019[pop_2019['ARM'].between(75101, 75120)].copy()
 
-# Étape 2 : On calcule la proportion de T3
+# On calcule la proportion de T3
 
 paris_data_2019_reg.loc[:, 'is_T3'] = paris_data_2019_reg['NBPI'] >= 3
 
@@ -70,7 +70,7 @@ pop_2020['NBPI'] = pd.to_numeric(pop_2020['NBPI'], errors='coerce')
 # On filtre pour les arrondissements parisiens (ARM entre 75101 et 75120)
 paris_data_2020_reg = pop_2020[pop_2020['ARM'].between(75101, 75120)].copy()
 
-# Étape 2 : On calcule la proportion de T3
+# On calcule la proportion de T3
 paris_data_2020_reg.loc[:, 'is_T3'] = paris_data_2020_reg['NBPI'] >= 3
 
 # Création de la colonne 'is_bac+5' en fonction de DIPLM
@@ -243,7 +243,7 @@ merged_data_reg = pd.merge(
 
 # print(merged_data_reg)
 
-#--------------------------Etape 3 : on réalise la régression--------------------------------------
+#--------------------------Etape 3 : on réalise la régression avec indicatrices arrondissements--------------------------------------
 # On réalise la régression 
 # On supprime les lignes avec des valeurs manquantes pour les variables explicatives uniquement
 merged_data_reg_clean = merged_data_reg.dropna(
@@ -265,6 +265,64 @@ X = pd.concat([
     merged_data_reg_clean[['Proportion_3_pieces_ou_plus', 'Proportion_bac+5', 'Proportion_30_40_Ans']],
     indicatrices_codgeo,
     indicatrices_annees
+], axis=1)
+
+
+# On ajoute une constante
+X = sm.add_constant(X)
+
+# Variable dépendante (nombre_total_eleves)
+y = merged_data_reg_clean['nombre_total_eleves']
+
+# Modèle de régression linéaire
+model_effectifs_absolus = sm.OLS(y, X)
+results = model_effectifs_absolus.fit()
+
+# Résumé des résultats
+print(results.summary())
+
+
+#--------------------------Etape 4 : on réalise la régression avec indicatrices zones--------------------------------------
+# On réalise la régression 
+# On supprime les lignes avec des valeurs manquantes pour les variables explicatives uniquement
+merged_data_reg_clean = merged_data_reg.dropna(
+    subset=['Proportion_3_pieces_ou_plus', 'Proportion_bac+5', 'Proportion_30_40_Ans']
+)
+
+
+# Fonction de classification des arrondissements en catégories géographiques
+def classify_arrondissement(codgeo):
+    arrondissement = int(codgeo[-2:])  # Extraire les deux derniers chiffres du code géographique
+    if arrondissement in [1, 2, 3, 4]:
+        return "centre"
+    elif arrondissement in [10, 11, 19, 20]:
+        return "nord-est"
+    elif arrondissement in [8, 9, 17, 18]:
+        return "nord-ouest"
+    elif arrondissement in [5, 12, 13]:
+        return "sud-est"
+    elif arrondissement in [6, 7, 14, 15, 16]:
+        return "sud-ouest"
+    else:
+        return "autre"
+        
+# Convertir CODGEO en chaîne
+merged_data_reg_clean['CODGEO'] = merged_data_reg_clean['CODGEO'].astype(str)
+
+# Appliquer la fonction de classification
+merged_data_reg_clean['zone_geographique'] = merged_data_reg_clean['CODGEO'].apply(classify_arrondissement)
+
+# Créer des indicatrices pour les zones géographiques
+indicatrices_zones = pd.get_dummies(merged_data_reg_clean['zone_geographique'], prefix='zone').astype(int)
+
+# Exemple de suppression d'une indicatrice 
+# Ici, nous supprimons la colonne "zone_centre" pour éviter une colinéarité si nécessaire.
+indicatrices_zones = indicatrices_zones.drop(columns=['zone_centre'], errors='ignore')
+
+# On définit les variables explicatives (on exclut CODGEO et nombre_total_eleves)
+X = pd.concat([
+    merged_data_reg_clean[['Proportion_3_pieces_ou_plus', 'Proportion_bac+5', 'Proportion_30_40_Ans']],
+    indicatrices_zones,
 ], axis=1)
 
 
