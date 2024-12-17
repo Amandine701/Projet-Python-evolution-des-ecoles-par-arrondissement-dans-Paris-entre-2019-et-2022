@@ -221,3 +221,59 @@ results = model_avec_ratios.fit()
 # Résumé des résultats
 print(results.summary())
 
+#--------------------------Etape 5 : on réalise la régression avec indicatrices zones--------------------------------------
+# On réalise la régression 
+# On supprime les lignes avec des valeurs manquantes pour les variables explicatives uniquement
+final_ratios_reg_clean = final_ratios_reg.dropna(
+    subset=['ratio_3_pieces', 'ratio_bac+5', 'ratio_30_40','ratio_eleves' ]
+)
+
+
+# Fonction de classification des arrondissements en catégories géographiques
+def classify_arrondissement(codgeo):
+    arrondissement = int(codgeo[-2:])  # Extraire les deux derniers chiffres du code géographique
+    if arrondissement in [1, 2, 3, 4]:
+        return "centre"
+    elif arrondissement in [10, 11, 19, 20]:
+        return "nord-est"
+    elif arrondissement in [8, 9, 17, 18]:
+        return "nord-ouest"
+    elif arrondissement in [5, 12, 13]:
+        return "sud-est"
+    elif arrondissement in [6, 7, 14, 15, 16]:
+        return "sud-ouest"
+    else:
+        return "autre"
+        
+# Convertir CODGEO en chaîne
+final_ratios_reg_clean['CODGEO'] = final_ratios_reg_clean['CODGEO'].astype(str)
+
+# Appliquer la fonction de classification
+final_ratios_reg_clean['zone_geographique'] = final_ratios_reg_clean['CODGEO'].apply(classify_arrondissement)
+
+# Créer des indicatrices pour les zones géographiques
+indicatrices_zones = pd.get_dummies(final_ratios_reg_clean['zone_geographique'], prefix='zone').astype(int)
+
+#suppression d'une indicatrice 
+# Ici, nous supprimons la colonne "zone_centre" pour éviter une colinéarité si nécessaire.
+indicatrices_zones = indicatrices_zones.drop(columns=['zone_centre'], errors='ignore')
+
+# On définit les variables explicatives (on exclut CODGEO et nombre_total_eleves)
+X = pd.concat([
+    final_ratios_reg_clean[['ratio_bac+5', 'ratio_30_40','ratio_3_pieces']],
+    indicatrices_zones,
+], axis=1)
+
+
+# On ajoute une constante
+X = sm.add_constant(X)
+
+# Variable dépendante (nombre_total_eleves)
+y = final_ratios_reg_clean['ratio_eleves']
+
+# Modèle de régression linéaire
+model_effectifs_absolus = sm.OLS(y, X)
+results = model_effectifs_absolus.fit()
+
+# Résumé des résultats
+print(results.summary())
