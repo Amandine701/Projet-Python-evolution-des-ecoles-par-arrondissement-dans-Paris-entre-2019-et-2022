@@ -272,8 +272,8 @@ X = sm.add_constant(X)
 y = final_ratios_reg_clean['ratio_eleves']
 
 # Modèle de régression linéaire
-model_effectifs_absolus = sm.OLS(y, X)
-results = model_effectifs_absolus.fit()
+model_effectifs_absolus_zone = sm.OLS(y, X)
+results = model_effectifs_absolus_zone.fit()
 
 # Résumé des résultats
 print(results.summary())

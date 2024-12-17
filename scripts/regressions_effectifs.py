@@ -333,8 +333,8 @@ X = sm.add_constant(X)
 y = merged_data_reg_clean['nombre_total_eleves']
 
 # Modèle de régression linéaire
-model_effectifs_absolus = sm.OLS(y, X)
-results = model_effectifs_absolus.fit()
+model_effectifs_absolus_zone = sm.OLS(y, X)
+results = model_effectifs_absolus_zone.fit()
 
 # Résumé des résultats
 print(results.summary())
