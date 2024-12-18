@@ -338,3 +338,83 @@ results = model_effectifs_absolus.fit()
 
 # Résumé des résultats
 print(results.summary())
+#--------------------------Etape 5 : régression lasso----------------------------------------------------------------------
+# Conclusion : toutes les variables sont significatives
+
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Suppression des lignes avec des valeurs manquantes pour les variables explicatives uniquement
+merged_data_reg_clean = merged_data_reg.dropna(
+    subset=['Proportion_3_pieces_ou_plus', 'Proportion_bac+5', 'Proportion_30_40_Ans']
+)
+
+# Fonction de classification des arrondissements en catégories géographiques
+def classify_arrondissement(codgeo):
+    arrondissement = int(codgeo[-2:])  # Extraire les deux derniers chiffres du code géographique
+    if arrondissement in [1, 2, 3, 4]:
+        return "centre"
+    elif arrondissement in [10, 11, 19, 20]:
+        return "nord-est"
+    elif arrondissement in [8, 9, 17, 18]:
+        return "nord-ouest"
+    elif arrondissement in [5, 12, 13]:
+        return "sud-est"
+    elif arrondissement in [6, 7, 14, 15, 16]:
+        return "sud-ouest"
+    else:
+        return "autre"
+
+# Convertir CODGEO en chaîne
+merged_data_reg_clean['CODGEO'] = merged_data_reg_clean['CODGEO'].astype(str)
+
+# Appliquer la fonction de classification
+merged_data_reg_clean['zone_geographique'] = merged_data_reg_clean['CODGEO'].apply(classify_arrondissement)
+
+# Créer des indicatrices pour les zones géographiques
+indicatrices_zones = pd.get_dummies(merged_data_reg_clean['zone_geographique'], prefix='zone').astype(int)
+
+# Exemple de suppression d'une indicatrice 
+# Ici, nous supprimons la colonne "zone_centre" pour éviter une colinéarité si nécessaire.
+indicatrices_zones = indicatrices_zones.drop(columns=['zone_centre'], errors='ignore')
+
+# Définir les variables explicatives (on exclut CODGEO et nombre_total_eleves)
+X = pd.concat([
+    merged_data_reg_clean[['Proportion_3_pieces_ou_plus', 'Proportion_bac+5', 'Proportion_30_40_Ans']],
+    indicatrices_zones,
+], axis=1)
+
+# Variable dépendante (nombre_total_eleves)
+y = merged_data_reg_clean['nombre_total_eleves']
+
+# Diviser les données en ensemble d'entraînement et de test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardiser les données (requis pour la régression Lasso)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Régularisation Lasso
+lasso_model = Lasso(alpha=0.1)  # Vous pouvez ajuster alpha pour contrôler la régularisation
+lasso_model.fit(X_train_scaled, y_train)
+
+# Prédictions sur les données de test
+y_pred = lasso_model.predict(X_test_scaled)
+
+# Évaluation du modèle
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+# Afficher les résultats
+print("Mean Squared Error (MSE):", mse)
+print("R-squared (R²):", r2)
+
+# Afficher les coefficients Lasso
+coef_df = pd.DataFrame({
+    "Feature": X.columns,
+    "Coefficient": lasso_model.coef_
+})
+print(coef_df)
