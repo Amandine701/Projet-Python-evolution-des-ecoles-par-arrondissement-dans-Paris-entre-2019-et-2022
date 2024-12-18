@@ -202,7 +202,7 @@ aplat = petite_couronne_count.plot(
         "orientation": "horizontal",  # Rend la légende horizontale
         "shrink": 0.5,  # Ajuste la taille de la barre de couleur
         "pad": 0.1,  # Espacement entre la légende et la carte
-        "label": "Évolution en milliers"
+        "label": "Évolution en %"
     }
 )
 ax.set_axis_off()
