@@ -110,7 +110,7 @@ Pyramide_ecart = Pyramid_2021 - Pyramid_2019
 
 df = Pyramide_ecart.to_frame(name="Effectifs")
 
-df.plot(kind='barh', color='darkblue', figsize=(10, 6)) 
+df.plot(kind='barh', color='darkblue', figsize=(10, 6), title = "Evolution de la pyramide des âges entre 2019 et 2021", ylabel = "Tranche d'âge") 
 
 # Ajout des labels et un titre
 plt.savefig('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramide_Paris_ecart1921.png')
