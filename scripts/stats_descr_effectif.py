@@ -28,11 +28,16 @@ effectifs_ecoles_paris = effectifs_ecoles[
 
 effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
 
+
+
 ##----- Effectif Paris et petite couronne
+
 
 effectifs_ecoles_pc = effectifs_ecoles[
     (effectifs_ecoles['Rentrée scolaire'].isin([2019, 2020, 2021])) &
-    (effectifs_ecoles['Département'].isin(['HAUTS-DE-SEINE', 'SEINE-SAINT-DENIS', 'VAL-DE-MARNE']))]
+    (effectifs_ecoles["Région académique"] == "ILE-DE-FRANCE") &
+    # petit bug ici avec le _192021 (effectifs_ecoles_192021['Code Postal'].isin([75001,75002,75003,75004, 75005, 75006, 75007, 75008, 75009, 75010, 75011, 75012, 75013, 75014, 75015, 75016, 75017, 75018, 75019, 75020]))]
+    ((effectifs_ecoles['Code Postal'] // 1000).isin([75,92,93,94]))]
 
 effectifs_ecoles_pc.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
 
@@ -226,6 +231,8 @@ petite_couronne = petite_couronne.to_crs(2154)
 petite_couronne.crs
 petite_couronne_count = petite_couronne.merge(pivot_df).to_crs(2154)
 petite_couronne_count.head()
+
+
 ## -------- Evolution en niveau -----------------
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 8))
@@ -281,6 +288,16 @@ plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondisse
 ## --------- Total nombre d'élèves par arrondissement par année ----------
 
 nb_eleve_arrondissementpc_annee = effectifs_ecoles_pc.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
+
+#== idée : merge par département.
+#== Problème les départements sont en toutes lettres...
+#nb_eleve_arrondissementpc_annee = (
+#    effectifs_ecoles_pc.groupby(['code_postal', 'rentree_scolaire'])
+#    .agg(
+#        nombre_total_eleves=('nombre_total_eleves', 'sum'),
+#        departement=('departement', 'first')  # Suppose que departement est unique pour chaque code_postal
+#    )
+#)
 ## Pivot pour réorganiser les données
 
 pivot_pc = nb_eleve_arrondissementpc_annee.pivot(index='code_postal', columns='rentree_scolaire', values='nombre_total_eleves')
@@ -317,11 +334,15 @@ petite_couronne = carti_download(
     year=2022,
 )
 
+petite_couronne['INSEE_COG']
+
+valeurs_communes = set(petite_couronne['INSEE_COG']).intersection(set(pivot_pc['INSEE_COG']))
+
+
 petite_couronne.crs
 petite_couronne = petite_couronne.to_crs(2154)
 petite_couronne.crs
 petite_couronne_count_pc = petite_couronne.merge(pivot_pc).to_crs(2154)
-
 
 ## -------- Evolution en niveau -----------------
 
