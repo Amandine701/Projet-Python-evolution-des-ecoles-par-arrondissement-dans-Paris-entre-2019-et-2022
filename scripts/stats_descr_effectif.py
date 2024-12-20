@@ -18,6 +18,8 @@ from cartiflette import carti_download
 
 effectifs_ecoles = pd.read_csv("https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes/exports/csv?lang=fr&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B", sep = ";", header = 0)
 
+##----- Effectif Paris
+
 effectifs_ecoles_paris = effectifs_ecoles[
     (effectifs_ecoles['Rentrée scolaire'].isin([2019, 2020, 2021])) &
     (effectifs_ecoles["Région académique"] == "ILE-DE-FRANCE") &
@@ -26,7 +28,22 @@ effectifs_ecoles_paris = effectifs_ecoles[
 
 effectifs_ecoles_paris.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
 
+##----- Effectif Paris et petite couronne
+
+effectifs_ecoles_pc = effectifs_ecoles[
+    (effectifs_ecoles['Rentrée scolaire'].isin([2019, 2020, 2021])) &
+    (effectifs_ecoles['Département'].isin(['HAUTS-DE-SEINE', 'SEINE-SAINT-DENIS', 'VAL-DE-MARNE']))]
+
+effectifs_ecoles_pc.columns = [unidecode(col).lower().replace(" ", "_").replace("d'", "").replace("'", "") for col in effectifs_ecoles_paris.columns]
+
 # --------------------------- Description des données -------------------------------
+
+##------ Evolution du nombre d'écoles par arrondissement
+
+group = effectifs_ecoles_paris.groupby(['code_postal', 'rentree_scolaire']).size().reset_index(name='nombre_ecoles')  
+group2 = effectifs_ecoles_paris.groupby(['code_postal']).size().reset_index(name='nombre_ecoles')  
+# Rien de concluant ca n'a pas tant bougé
+
 
 ## --------- Total nombre d'élèves par arrondissement par année ----------
 
@@ -208,7 +225,7 @@ petite_couronne.crs
 petite_couronne = petite_couronne.to_crs(2154)
 petite_couronne.crs
 petite_couronne_count = petite_couronne.merge(pivot_df).to_crs(2154)
-
+petite_couronne_count.head()
 ## -------- Evolution en niveau -----------------
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 8))
@@ -256,3 +273,102 @@ ax.set_title(
 )
 
 plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/carte_evol_effectifs_pourcentage.png")
+
+
+#------------------ Ajout carte petite couronne
+
+
+## --------- Total nombre d'élèves par arrondissement par année ----------
+
+nb_eleve_arrondissementpc_annee = effectifs_ecoles_pc.groupby(['code_postal', 'rentree_scolaire'])['nombre_total_eleves'].sum().reset_index()
+## Pivot pour réorganiser les données
+
+pivot_pc = nb_eleve_arrondissementpc_annee.pivot(index='code_postal', columns='rentree_scolaire', values='nombre_total_eleves')
+pivot_pc['evolution_total'] = ((pivot_pc[2021] - pivot_pc[2019]) / pivot_pc[2019]) * 100
+pivot_pc['evolution_2019_2020'] = ((pivot_pc[2020] - pivot_pc[2019]) / pivot_pc[2019]) * 100
+pivot_pc['evolution_2020_2021'] = ((pivot_pc[2021] - pivot_pc[2020]) / pivot_pc[2020]) * 100
+pivot_pc['proportion_2019_2020'] = pivot_pc['evolution_2019_2020'] / pivot_pc['evolution_total']
+pivot_pc['proportion_2020_2021'] = pivot_pc['evolution_2020_2021'] / pivot_pc['evolution_total']
+pivot_pc['evolution_total_niveau'] = (pivot_pc[2021] - pivot_pc[2019]) 
+pivot_pc['INSEE_COG'] = (pivot_pc.index.astype(int)+ 100).astype(str)
+pivot_pc.index = pivot_pc.index.astype(str)
+
+pivot_pc_sorted = pivot_pc.sort_values(by='evolution_total', ascending=False)
+
+pivot_pc['perte_2019_2020'] = pivot_pc[2019] - pivot_pc[2020]
+pivot_pc['perte_2020_2021'] = pivot_pc[2020] - pivot_pc[2021]
+pivot_pc['perte_2019_2021'] = pivot_pc[2019] - pivot_pc[2021]
+
+pivot_pc.columns
+pivot_pc['effectifs_totaux_2019'] = pivot_pc[2019].sum()
+pivot_pc['effectifs_totaux_2020'] = pivot_pc[2020].sum()
+pivot_pc['effectifs_totaux_2021'] = pivot_pc[2021].sum()
+pivot_pc['proportion_2019'] = pivot_pc[2019] / pivot_pc['effectifs_totaux_2019'] * 100
+pivot_pc['proportion_2020'] = pivot_pc[2020] / pivot_pc['effectifs_totaux_2020'] * 100
+pivot_pc['proportion_2021'] = pivot_pc[2021] / pivot_pc['effectifs_totaux_2021'] * 100
+
+petite_couronne = carti_download(
+    crs=4326,
+    values=["75", "92", "93", "94"],
+    borders="COMMUNE_ARRONDISSEMENT",
+    vectorfile_format="geojson",
+    filter_by="DEPARTEMENT",
+    source="EXPRESS-COG-CARTO-TERRITOIRE",
+    year=2022,
+)
+
+petite_couronne.crs
+petite_couronne = petite_couronne.to_crs(2154)
+petite_couronne.crs
+petite_couronne_count_pc = petite_couronne.merge(pivot_pc).to_crs(2154)
+
+
+## -------- Evolution en niveau -----------------
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+aplat = petite_couronne_count_pc.plot(
+    column="evolution_total_niveau",
+    cmap="Reds_r",
+    legend=True,
+    ax=ax,
+    legend_kwds={
+        "orientation": "horizontal",  # Rend la légende horizontale
+        "shrink": 0.5,  # Ajuste la taille de la barre de couleur
+        "pad": 0.1,  # Espacement entre la légende et la carte
+        "label": "Évolution en nombre d'élèves"
+    }
+)
+ax.set_axis_off()
+ax.set_title(
+    "Evolution du nombre d'élèves par arrondissement entre 2019 et 2021",
+    y=1.05,  # Titre au-dessus de la carte
+    fontsize=16
+)
+
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/cartepetitecouronne_evol_effectifs_niveau.png")
+
+## ----------- Evolution en % -------------
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+aplat = petite_couronne_count.plot(
+    column="evolution_total",
+    cmap="Reds_r",
+    legend=True,
+    ax=ax,
+    legend_kwds={
+        "orientation": "horizontal",  # Rend la légende horizontale
+        "shrink": 0.5,  # Ajuste la taille de la barre de couleur
+        "pad": 0.1,  # Espacement entre la légende et la carte
+        "label": "Évolution en %"
+    }
+)
+ax.set_axis_off()
+ax.set_title(
+    "Evolution du nombre d'élèves par arrondissement entre 2019 et 2021",
+    y=1.05,  # Titre au-dessus de la carte
+    fontsize=16
+)
+
+plt.savefig("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/cartepetitecouronne_evol_effectifs_pourcentage.png")
+
+
