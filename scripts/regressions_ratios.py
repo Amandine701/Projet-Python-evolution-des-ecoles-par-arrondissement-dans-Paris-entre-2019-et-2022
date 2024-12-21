@@ -214,8 +214,8 @@ X_ratio = sm.add_constant(X_ratio)
 y_ratio = final_ratios_reg_clean['ratio_eleves']
 
 # Modèle de régression linéaire
-model_avec_ratios = sm.OLS(y_ratio, X_ratio)
-results = model_avec_ratios.fit()
+model_avec_ratios_arrondissement = sm.OLS(y_ratio, X_ratio)
+results = model_avec_ratios_arrondissement.fit()
 
 # Résumé des résultats
 print(results.summary())
@@ -271,8 +271,8 @@ X = sm.add_constant(X)
 y = final_ratios_reg_clean['ratio_eleves']
 
 # Modèle de régression linéaire
-model_effectifs_absolus_zone = sm.OLS(y, X)
-results = model_effectifs_absolus_zone.fit()
+model_avec_ratios = sm.OLS(y, X)
+results = model_avec_ratios.fit()
 
 # Résumé des résultats
 print(results.summary())
