@@ -64,6 +64,20 @@ pivot_pop_totale.index = pivot_pop_totale.index.astype(str)
 
 pivot_pop_totale_sorted = pivot_pop_totale.sort_values(by='evolution_total', ascending=False)
 
+#=== Tableau évolution 2019-2021 par arrondissement
+part_evolution_par_an_et_arrondissement = pivot_pop_totale[['proportion_2019_2020', 'proportion_2020_2021']]
+
+part_evolution_par_an_et_arrondissement.rename(
+    columns={
+        'proportion_2019_2020': "part de l'année 2020",
+        'proportion_2020_2021': "part de l'année 2021"
+    },
+    inplace=True
+)
+
+part_evolution_par_an_et_arrondissement.reset_index(drop=False, inplace=True)
+part_evolution_par_an_et_arrondissement.index.name = None
+part_evolution_par_an_et_arrondissement.columns.name = None
 
 # Proportion population par arrondissement 
 

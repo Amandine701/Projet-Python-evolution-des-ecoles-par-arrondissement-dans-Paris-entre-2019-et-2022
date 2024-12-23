@@ -126,6 +126,26 @@ pivot_df['proportion_2020'] = pivot_df[2020] / pivot_df['effectifs_totaux_2020']
 pivot_df['proportion_2021'] = pivot_df[2021] / pivot_df['effectifs_totaux_2021'] * 100
 
 
+## -------- Evolution totale par arrondissement ----------
+evolution_totale_arrondissement_df = pivot_df[['INSEE_COG', 'evolution_total']]
+
+evolution_totale_arrondissement_df.rename(
+    columns={
+        'INSEE_COG': 'arrondissement',
+        'evolution_total': 'evolution_totale'
+    },
+    inplace=True
+)
+
+evolution_totale_arrondissement_df['arrondissement'] = evolution_totale_arrondissement_df['arrondissement'].astype(int) - 100
+
+evolution_totale_arrondissement_df.reset_index(drop=True, inplace=True)
+evolution_totale_arrondissement_df = evolution_totale_arrondissement_df[['arrondissement', 'evolution_totale']]
+evolution_totale_arrondissement_df.index.name = None
+evolution_totale_arrondissement_df.columns.name = None
+
+
+
 # ----------------------------- Visualisation des données ------------------------
 
 ## -------- Graphique : Nombre total d'élèves pas arrondissement par année ----------
