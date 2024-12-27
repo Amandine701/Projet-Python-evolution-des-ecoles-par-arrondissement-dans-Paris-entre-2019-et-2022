@@ -32,7 +32,7 @@ def plot_age_pyramid_for_arrondissement(annee, arrondissement_code):
     df_arrondissement = df_arrondissement[df_arrondissement['CODGEO'] == arrondissement_code]
     
     # Comptage du nombre d'individus dans chaque tranche d'âge (sans séparer par sexe)
-    age_distribution = df_arrondissement.groupby('tranche_age')['NB'].sum()
+    age_distribution = df_arrondissement.groupby('tranche_age', observed = False)['NB'].sum()
     
     # Tracé la pyramide des âges
     age_distribution.plot(kind='barh', color='lightblue', figsize=(10, 6))
@@ -58,7 +58,7 @@ df_paris_2019['tranche_age'] = pd.cut(df_ages_2019['AGED100'], bins=bins, labels
 for code in codes_insee_paris:
     plot_age_pyramid_for_arrondissement(2019, str(code))
     # Enregistrer le graphique dans un fichier
-    plt.savefig('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2019/pyramide_age_{code}_2019.png')
+    plt.savefig(f'/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2019/pyramide_age_{code}_2019.png')
     plt.close()  # on ferme la figure pour éviter une accumulation de graphiques
 
 
@@ -77,7 +77,7 @@ df_paris_2020['tranche_age'] = pd.cut(df_ages_2020['AGED100'], bins=bins, labels
 for code in codes_insee_paris:
     plot_age_pyramid_for_arrondissement(2020, str(code))
     # Enregistrer le graphique dans un fichier
-    plt.savefig('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2020/pyramide_age_{code}_2020.png')
+    plt.savefig(f'/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2020/pyramide_age_{code}_2020.png')
     plt.close()  # on ferme la figure pour éviter une accumulation de graphiques
 
 
@@ -96,7 +96,7 @@ df_paris_2021['tranche_age'] = pd.cut(df_ages_2021['AGED100'], bins=bins, labels
 for code in codes_insee_paris:
     plot_age_pyramid_for_arrondissement(2021, str(code))
     # Enregistrer le graphique dans un fichier
-    plt.savefig('/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2021/pyramide_age_{code}_2021.png')
+    plt.savefig(f'/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/graphs/Pyramides des âges 2021/pyramide_age_{code}_2021.png')
     # on ferme la figure pour éviter une accumulation de graphiques
 
 
