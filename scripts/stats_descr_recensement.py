@@ -6,9 +6,9 @@ import matplotlib.ticker as mticker
 import geopandas as gpd
 from cartiflette import carti_download
 
-pop_2019 = pd.read_csv("extracted_files/FD_LOGEMTZA_2019.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
-pop_2020 = pd.read_csv("extracted_files/FD_LOGEMTZA_2020.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
-pop_2021 = pd.read_csv("extracted_files/FD_LOGEMTZA_2021.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2019 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2019.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2020 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2020.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
+pop_2021 = pd.read_csv("/home/onyxia/work/Projet-Python-evolution-des-ecoles-par-arrondissement-dans-Paris-entre-2019-et-2022/extracted_files/FD_LOGEMTZA_2021.csv", sep = ";", header=0, encoding='UTF-8', low_memory=False)
 
 # Recensement
 
